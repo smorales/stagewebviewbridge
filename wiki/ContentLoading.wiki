@@ -32,8 +32,6 @@ webView.loadLocalURL("applink:/html/index.html");
 <script src="appfile:/myScript.js"></script>
 }}}
 
-}}}
-
 == StageWebViewBrige.loadURL ==
 
 This method is the same as in the original class.
