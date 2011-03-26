@@ -12,8 +12,20 @@ appfile:/ --> reference to images/scripts/css etc
 
 Lets us load content from the applicationDirectory.
 
+The benefits of use this method other than loadURL method is that you can refer resources like:
+{{{
+appfile:/image.png
+}}} 
+
+Otherwise you must provide a full resource path like:
+
+{{{
+file:///Users/xperiments/Documents/TestAndroidIOS/bin-debug/image.png
+}}}
+
 It also injects the necesary code to establish communication with actionscript.
 
+=== Usage ===
 {{{
 // load document.html from the application directory
 webView.loadLocalURL("applink:/document.html");
@@ -45,5 +57,3 @@ This method acts like the original class, but injects the necessary javascript c
 
 *Attention:*
 You must provide a valid html code because the injection finds the `<head>` tag to inject the script.
-
-
