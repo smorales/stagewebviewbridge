@@ -1,21 +1,51 @@
 = Content Loading =
 
-== loadLocalURL ==
-
-It lets us load content from the applicationDirectory.
-
-To accomplish with the loading of diferent resources we introduce 2 new protocols
-<a>kkk</a>
+== Introduction ==
+To accomplish with the loading of different resources we introduce 2 new protocols.
 {{{
-applink:/
-appfile:/
+applink:/ --> links between local documents
+appfile:/ --> reference to images/scripts/css etc
 }}}
 
-Example:
+
+== StageWebViewBrige.loadLocalURL ==
+
+Lets us load content from the applicationDirectory.
+
+It also injects the necesary code to establish communication with actionscript.
+
 {{{
 // load document.html from the application directory
 webView.loadLocalURL("applink:/document.html");
 // load index.html that is inside the html directory in the application directory
 webView.loadLocalURL("applink:/html/index.html");
 }}}
+
+=== Linking between pages in html ==
+{{{
+<a href="applink:/someDir/someFile.html">Link</a>
+}}}
+
+=== Referencing images, scripts, etc in html ===
+{{{
+<img src="appfile:/image.png">
+<script src="appfile:/myScript.js"></script>
+}}}
+
+}}}
+
+== StageWebViewBrige.loadURL ==
+
+This method is the same as in the original class.
+
+*Attention:*
+If you like to use the comunication feature of this class you must include the StageWebViewBridge.js file in your html.
+
+== StageWebViewBrige.loadString ==
+
+This method acts like the original class, but injects the necessary javascript code for the communication.
+
+*Attention:*
+You must provide a valid html code because the injection finds the `<head>` tag to inject the script.
+
 
