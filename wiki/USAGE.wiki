@@ -1,0 +1,31 @@
+== Creating a new instance ==
+
+{{{
+var webView:StageWebViewBridge = new StageWebViewBridge();
+webView.stage = this.stage;
+webView.viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight );
+}}}
+
+== Calling Javascript from Actionscript==
+{{{
+// call javascript method
+webView.bridge.call('someFunctionToCall');
+
+// call javascript method width parameters
+webView.bridge.call('someFunctionToCall', null, ...arguments );
+
+// call javascript with callack function
+webView.bridge.call('someFunctionToCall', callBackFunction, ...arguments );
+}}}
+
+== Calling Actionscript from Javascript==
+{{{
+// call actionscript method
+StageWebViewBridge.call('someFunctionToCall');
+
+// call actionscript method width parameters
+StageWebViewBridge.call('someFunctionToCall', null, ...arguments );
+
+// call actionscript with callack function
+StageWebViewBridge.call('someFunctionToCall', callBackFunction, ...arguments );
+}}}
