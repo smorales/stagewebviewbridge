@@ -1,0 +1,21 @@
+= Content Loading =
+
+== loadLocalURL ==
+
+It lets us load content from the applicationDirectory.
+
+To accomplish with the loading of diferent resources we introduce 2 new protocols
+<a>kkk</a>
+{{{
+applink:/
+appfile:/
+}}}
+
+Example:
+{{{
+// load document.html from the application directory
+webView.loadLocalURL("applink:/document.html");
+// load index.html that is inside the html directory in the application directory
+webView.loadLocalURL("applink:/html/index.html");
+}}}
+
