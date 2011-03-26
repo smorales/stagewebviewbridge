@@ -50,7 +50,8 @@ This method is the same as in the original class.
 
 *Attention:*
 {{{
-If you like to use the comunication feature of this class you must include the StageWebViewBridge.js file in your html.
+If you like to use the comunication feature of this class you must 
+include the StageWebViewBridge.js file in your html.
 }}}
 
 == StageWebViewBrige.loadString ==
