@@ -49,11 +49,15 @@ webView.loadLocalURL("applink:/html/index.html");
 This method is the same as in the original class.
 
 *Attention:*
+{{{
 If you like to use the comunication feature of this class you must include the StageWebViewBridge.js file in your html.
+}}}
 
 == StageWebViewBrige.loadString ==
 
 This method acts like the original class, but injects the necessary javascript code for the communication.
 
 *Attention:*
-You must provide a valid html code because the injection finds the `<head>` tag to inject the script.
+{{{
+You must provide a valid html code because the injection finds the <head> tag to inject the script.
+}}}
