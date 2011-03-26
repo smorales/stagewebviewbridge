@@ -18,8 +18,17 @@ webView.bridge.call('someFunctionToCall', null, ...arguments );
 webView.bridge.call('someFunctionToCall', callBackFunction, ...arguments );
 }}}
 
+== Enabling actionscript functions to be called from javascript ==
+{{{
+// This is only necesary on a direct function call from js
+// Use only when you call an as3 function without response from javascript
+webView.bridge.addCallback("functionToCall", as3FunctionHandler );
+}}}
+
+
 == Calling Actionscript from Javascript==
 {{{
+
 // call actionscript method
 StageWebViewBridge.call('someFunctionToCall');
 
