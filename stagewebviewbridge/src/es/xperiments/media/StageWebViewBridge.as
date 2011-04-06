@@ -52,7 +52,7 @@ package es.xperiments.media
 		private var _copyToFile:File = new File();
 		
 		// JAVASCRIPT CODE
-		private static const JSXML:XML =
+		private static const JSXML:XML = 
 			<script>
 				<![CDATA[
 					if( window.StageWebViewBridge == null )
@@ -134,7 +134,7 @@ package es.xperiments.media
 		// Static Class Initializer
 		{
 			setSourceFileExtensions( DEFAULT_CACHED_EXTENSIONS );
-			FIRST_RUN = File.applicationDirectory.resolvePath('firstRun.flag').exists ? false:true;
+			FIRST_RUN = File.applicationDirectory.resolvePath('StageWebViewFirstRun.cfg').exists ? false:true;
 		}		
 		
 		
@@ -238,7 +238,7 @@ package es.xperiments.media
 						preparseFile( fileList[e] , ( ext == "html" || ext == "htm") );
 					}  
 				}
-				_tmpFile.nativePath = File.applicationDirectory.resolvePath('firstRun.flag').nativePath;
+				_tmpFile.nativePath = File.applicationDirectory.resolvePath('StageWebViewFirstRun.cfg').nativePath;
 				_fileStream.open(_tmpFile, FileMode.WRITE);
 				_fileStream.writeUTFBytes( 'firstRun=true' ); 
 				_fileStream.close();
