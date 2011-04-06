@@ -1,32 +1,79 @@
-== Cache FileSystem ==
+=Cache FileSystem=
 
-Working with localfiles is tedious. You must provide paths in a native path.
+Working with localfiles is tedious. You must provide paths with a native path.
 
-To overcome this situation we have provide StageWebViewBridge with new ways of referencing resources.
-Now we can reference a file with "appfile:/index.html".
-
+To overcome this situation we have provide StageWebViewBridge with new ways of referencing resources as we have explained in [ContentLoading]
 
 
-For example, the code:
+== Begin the scenes ==
+
+But, what happends begin the scenes?
+
+By default StageWebViewBridge will assume that the "root" dir of your web files is the "html" directory inside your File.applicationDirectory.
+
+Based on this "html" folder name, 2 new directories will be created:
 {{{
-<img src="appfile:/images/background.png">
+app:/html
+app:/htmlCache	[ new ]
+app:/htmlSource	[ new ]
 }}}
 
- 
-
-
-
-The cache filesystem generates "parsed" versions of your original files.
-The system do all the work for you.
-
-
-
-Now you can assign the root directory for your content.
+=== Explanation of directories ==
 {{{
-// this will set the base working directory
-StageWebViewBridge.setRootFolder('html');
-// after that 2 new directories will be created
-// homeCache
-// homeSource
-// this will be the 2 directories you must include in your final package.
+app:/html...............This is your working directory.
+			Put inside it all your html project files.
+			Make only changes in files of this directory.!!! 
+
+app:/htmlCache..........Parsed versions of [html,htm,js,css] files.
+			Contains a copy of all other files. [png,jpg,mp4,etc...]
+
+app:/htmlSource.........Contains original unparsed sources.
+			For use as original files in app release.
+			When you first install the application, it will parse
+			these files and save them to app:/htmlCache
+}}}
+
+
+=== How Cache system works ===
+
+Every time you compile your projects, StageWebViewBridge do:
+
+*StageWebViewBridge.DEBUGMODE = true*
+
+ * Assumes that root dir is default dir *app:/html*
+ * Search for new or modified files in app:/html.
+ * For every new or updated file make a parsed/copy into app:/htmlCache.
+ * If the file is [ html,html,js,css] it will also copy the file to the app:/htmlSource.
+
+*StageWebViewBridge.DEBUGMODE = false*
+
+ * Assumes that root dir is *app:/htmlSource*
+ * Use it when you are in release build.
+
+
+=== App First Run ===
+
+When the app finish launching, it test if it's the first time that its run.
+
+If so, it will preparse all the files of app:/htmlSource to app:/htmlCache.
+
+== Public Methods ==
+
+=== StageWebViewBridge.setRootFolder ===
+{{{
+// sets the default dir to 'htmlFiles'
+StageWebViewBridge.setRootFolder('htmlFiles');
+
+// this will create 2 new dirs
+app:/htmlFilesCache
+app:/htmlFilesSource
+}}}
+
+=== StageWebViewBridge.setSourceFileExtensions ===
+{{{
+// Change the extensions of the files to parse.
+// Default extensions are ["html","htm","css","js"]
+
+// now limit the files to be html or js, and left intact the css and htm files
+StageWebViewBridge.setSourceFileExtensions(['html','js']);
 }}}
