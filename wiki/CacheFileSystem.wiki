@@ -1,0 +1,32 @@
+== Cache FileSystem ==
+
+Working with localfiles is tedious. You must provide paths in a native path.
+
+To overcome this situation we have provide StageWebViewBridge with new ways of referencing resources.
+Now we can reference a file with "appfile:/index.html".
+
+
+
+For example, the code:
+{{{
+<img src="appfile:/images/background.png">
+}}}
+
+ 
+
+
+
+The cache filesystem generates "parsed" versions of your original files.
+The system do all the work for you.
+
+
+
+Now you can assign the root directory for your content.
+{{{
+// this will set the base working directory
+StageWebViewBridge.setRootFolder('html');
+// after that 2 new directories will be created
+// homeCache
+// homeSource
+// this will be the 2 directories you must include in your final package.
+}}}
