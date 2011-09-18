@@ -1,37 +1,55 @@
 = Content Loading =
 
 == Introduction ==
-To accomplish with the loading of different resources we introduce 2 new protocols.
+To accomplish with the loading of different resources we introduce 3 new protocols.
 {{{
 applink:/ --> links between local documents
 appfile:/ --> reference to images/scripts/css etc
+jsfile:/ --> used in JS to get a file path with StageWebViewBridge.getFilePath('jsfile:/fileinroot.html') 
 }}}
 
 
-== StageWebViewBrige.loadLocalURL ==
+== Different load methods ==
 
-Lets us load content from the applicationDirectory.
+=== StageWebViewBrige.loadURL === 
 
-The benefits of use this method other than loadURL method is that you can refer resources like:
+Standard method of loading content
+=== StageWebViewBrige.loadLocalURL === 
+
+Lets us load content from our www directory.
+
+The benefits of use this method other than loadURL method is that we can refer resources like:
 {{{
 appfile:/image.png
 }}} 
 
-Otherwise you must provide a full resource path like:
-
-{{{
-file:///Users/xperiments/Documents/TestAndroidIOS/bin-debug/image.png
-}}}
-
 It also injects the necesary code to establish communication with actionscript.
 
 === Usage ===
-{{{
-// load document.html from the application directory
+`
+// load document.html from www root directory
 webView.loadLocalURL("applink:/document.html");
-// load index.html that is inside the html directory in the application directory
+// load index.html that is inside the html directory in www root directory
 webView.loadLocalURL("applink:/html/index.html");
+`
+
+=== StageWebViewBrige.loadString === 
+
+Same as the standard loadString method, but also injects the necesary code to make bidirectional communication between AS3 and JS.
+
+=== StageWebViewBrige.loadLocalString === 
+
+Creates a temporally file in the filesystem with the contents provided.
+This lets us reference local files with the diferents protocols provided.
+
+=== Usage ===
+{{{
+
+var html:String = '<html><head><head><body><img src="appfile:/image.jpg"></body></html>';
+webView.loadLocalString( html );
+
 }}}
+
 
 === Linking between pages in html ==
 {{{
