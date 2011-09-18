@@ -18,7 +18,7 @@ package es.xperiments.media
 	import by.blooddy.crypto.serialization.JSON;
 	import es.xperiments.utils.Base64;
 	import flash.events.EventDispatcher;
-
+ 
 	public class StageWebViewBridgeExternal extends EventDispatcher
 	{
 		private var _activeStage:StageWebViewBridge;
