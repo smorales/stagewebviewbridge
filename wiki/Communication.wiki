@@ -1,28 +1,25 @@
 == Creating a new instance ==
 
 {{{
-var webView:StageWebViewBridge = new StageWebViewBridge();
-webView.stage = this.stage;
-webView.viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight );
+var webView:StageWebViewBridge = new StageWebViewBridge( 0,0,400,400 );
+addChild( webView );
 }}}
 
 == Calling Javascript from Actionscript==
 {{{
 // call javascript method
-webView.bridge.call('someFunctionToCall');
+webView.call('someFunctionToCall');
 
 // call javascript method width parameters
-webView.bridge.call('someFunctionToCall', null, ...arguments );
+webView.call('someFunctionToCall', null, ...arguments );
 
 // call javascript with callack function
-webView.bridge.call('someFunctionToCall', callBackFunction, ...arguments );
+webView.call('someFunctionToCall', callBackFunction, ...arguments );
 }}}
 
 == Enabling actionscript functions to be called from javascript ==
 {{{
-// This is only necesary on a direct function call from js
-// Use only when you call an as3 function without response from javascript
-webView.bridge.addCallback("functionToCall", as3FunctionHandler );
+webView.addCallback("functionToCall", as3FunctionHandler );
 }}}
 
 
@@ -35,6 +32,6 @@ StageWebViewBridge.call('someFunctionToCall');
 // call actionscript method width parameters
 StageWebViewBridge.call('someFunctionToCall', null, ...arguments );
 
-// call actionscript with callack function
+// call actionscript with callback function
 StageWebViewBridge.call('someFunctionToCall', callBackFunction, ...arguments );
 }}}
