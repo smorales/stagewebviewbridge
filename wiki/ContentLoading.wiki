@@ -8,13 +8,21 @@ appfile:/ --> reference to images/scripts/css etc
 jsfile:/ --> used in JS to get a file path with StageWebViewBridge.getFilePath('jsfile:/fileinroot.html') 
 }}}
 
+----
 
-== Different load methods ==
+= Different load methods =
 
-=== StageWebViewBrige.loadURL === 
+== StageWebViewBrige.loadURL == 
 
 Standard method of loading content
-=== StageWebViewBrige.loadLocalURL === 
+
+{{{
+
+webView.loadURL( url );
+
+}}}
+
+== StageWebViewBrige.loadLocalURL == 
 
 Lets us load content from our www directory.
 
@@ -26,12 +34,12 @@ appfile:/image.png
 It also injects the necesary code to establish communication with actionscript.
 
 === Usage ===
-`
+{{{
 // load document.html from www root directory
 webView.loadLocalURL("applink:/document.html");
 // load index.html that is inside the html directory in www root directory
 webView.loadLocalURL("applink:/html/index.html");
-`
+}}}
 
 === StageWebViewBrige.loadString === 
 
