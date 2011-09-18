@@ -15,9 +15,8 @@ limitations under the License.
 */
 package es.xperiments.media
 {
-	import com.adobe.serialization.json.JSON;
+	import by.blooddy.crypto.serialization.JSON;
 	import es.xperiments.utils.Base64;
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
 
 	public class StageWebViewBridgeExternal extends EventDispatcher
@@ -27,42 +26,66 @@ package es.xperiments.media
 		private var _callBacks:Array;
 		private var _callBackFunction:Function;
 		
+		/**
+		 * Contructor
+		 * @param stageWebView The stagewebview instance 
+		 */
 		public function StageWebViewBridgeExternal( stageWebView:StageWebViewBridge )
 		{
 			_activeStage = stageWebView;
 			_callBacks = new Array();
-			_activeStage.addEventListener(Event.COMPLETE,initJavascriptCommunication );
 		}
-		private function initJavascriptCommunication( e:Event ):void
+		
+		/**
+		 * Initializes javascript comunication, passing the applicationRootPath
+		 */
+		public function initJavascriptCommunication( ):void
 		{
-			// TODO Really know why need this hack
-			_activeStage.loadURL('javascript:');
+			_activeStage.loadURL("javascript:");
 		}
 
+		/**
+		 * Makes a call to a javascript function
+		 * @param functionName Name of the function to call
+		 * @param callback The callback function to execute when javascript call is processed
+		 * @param arguments Coma separated arguments to pass to Javascript function
+		 */
 		public function call(functionName:String, callback:Function = null,  ... arguments):void
 		{
 			_serializeObject = {};  
-			_serializeObject.method = functionName;
-			_serializeObject.arguments = arguments;
+			_serializeObject['method'] = functionName;
+			_serializeObject['arguments'] = arguments;
 			if( callback!=null )
 			{
-				_activeStage.bridge.addCallback('[SWVMethod]'+functionName, callback );
-				_serializeObject.callBack = '[SWVMethod]'+functionName;
+				addCallback('[SWVMethod]'+functionName, callback );
+				_serializeObject['callBack'] = '[SWVMethod]'+functionName;
 			}	
 			_activeStage.loadURL("javascript:StageWebViewBridge.doCall('"+Base64.encodeString( JSON.encode( _serializeObject ) ) +"')");
 		}
 
-		public function addCallback( name:String, fn:Function ):void
+		/**
+		 * Add a callback function to the current list of avaliable callbacks
+		 * @param name the name of the callback function in this format : [SWVMethod]( name )
+		 * @param callback The callback function 
+		 */
+		public function addCallback( name:String, callback:Function ):void
 		{
-			_callBacks[ name ] = fn;
+			_callBacks[ name ] = callback;
 		}	
+
+
+		/**
+		 * Proceses a call from javascript
+		 * @param base64String Json Object in base64
+		 */
 
 		public function parseCallBack( base64String:String ):void
 		{
 			_serializeObject = JSON.decode( Base64.decode( base64String ).toString() );
-			_callBackFunction = _callBacks[ _serializeObject.method ];
-			var returnValue:*=null;
-			if( _serializeObject.arguments.length!=0 )
+			_callBackFunction = _callBacks[ _serializeObject['method'] ];
+			var returnValue:* = null;
+
+			if( _serializeObject['arguments'].length!=0 )
 			{
 				returnValue = _callBackFunction.apply(null, _serializeObject.arguments );
 			}
@@ -70,9 +93,9 @@ package es.xperiments.media
 			{
 				returnValue = _callBackFunction();
 			}
-			if(_serializeObject.callBack!=undefined && returnValue!=null )
+			if(_serializeObject['callBack']!=undefined && returnValue!=null )
 			{
-				call( _serializeObject.callBack, null, returnValue );
+				call( _serializeObject['callBack'], null, returnValue );
 			}	
 		}	
 	}

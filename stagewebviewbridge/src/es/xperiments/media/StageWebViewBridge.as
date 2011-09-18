@@ -12,360 +12,212 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-
+ */
 package es.xperiments.media
 {
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.display.JointStyle;
-	import flash.display.Stage;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.events.FocusEvent;
 	import flash.events.LocationChangeEvent;
 	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.media.StageWebView;
-	
-	public class StageWebViewBridge extends EventDispatcher
+	import flash.system.System;
+
+	public class StageWebViewBridge extends Bitmap
 	{
+		private static const _zeroPoint : Point = new Point( 0, 0 );
+		private static var _translatedPoint : Point;
+		private var _bridge : StageWebViewBridgeExternal;
+		private var _view : StageWebView;
+		private var _viewPort : Rectangle;
+		private var _tmpFile : File = new File();
+		private var _snapShotVisible : Boolean = false;
+		private var _getSnapShotCallBack : Function;
 
-		public static var DEBUGMODE:Boolean = true; 
-		public var bridge:StageWebViewBridgeExternal;
-		
-		private static const ROOT_PATH:String = new File(new File( "app:/" ).nativePath).url;
-		private static const DEFAULT_CACHED_EXTENSIONS:Array = ["html","htm","css","js"];
-		private static var CACHED_EXTENSIONS:Array;
-		private static var DOCUMENT_ROOT:String = "html";
-		private static var DOCUMENT_CACHE:String = DOCUMENT_ROOT+"Cache";
-		private static var DOCUMENT_SOURCE:String = DOCUMENT_ROOT+"Source";
-		private static var FIRST_RUN:Boolean = true;
-		
-		
-		private var _view:StageWebView;
-		private var _fileStream:FileStream; 
-		private var _tmpFile:File = new File();
-		private var _copyFromFile:File = new File();
-		private var _copyToFile:File = new File();
-		
-		// JAVASCRIPT CODE
-		private static const JSXML:XML = 
-			<script>
-				<![CDATA[
-					if( window.StageWebViewBridge == null )
-					{
-						window.StageWebViewBridge = {};
-						window.StageWebViewBridge.callBacks = [];
-						window.StageWebViewBridge.doCall = function( jsonArgs )
-						{
-							var _serializeObject = JSON.parse( atob( jsonArgs ) );
-							var method = _serializeObject.method;
-							var returnValue = null;
-							if( method.indexOf('[SWVMethod]')==-1 )
-							{			
-								var targetFunction;
-								if( method.indexOf('.')==-1)
-								{
-									targetFunction = window[ method ];
-								}
-								else
-								{
-									var splitedPath = method.split('.');
-									targetFunction=window;
-									for( var i=0; i<splitedPath.length; i++ )
-									{
-										targetFunction = targetFunction[ splitedPath[ i ] ];
-									};
-								}
-								returnValue = targetFunction.apply(null, _serializeObject.arguments );
-							}
-							else
-							{
-								var targetFunction = window.StageWebViewBridge.callBacks[ method ];
-								returnValue = targetFunction.apply(null, _serializeObject.arguments );
-							}
-							if( _serializeObject.callBack !=undefined && returnValue!=null )
-							{	
-								window.StageWebViewBridge.call( _serializeObject.callBack, null, returnValue );  		
-							}
-	
-						};
-						window.StageWebViewBridge.call = function( )
-						{
-							var argumentsArray = [];
-							var _serializeObject = {};
-								_serializeObject.method = arguments[ 0 ];
-							if( arguments[ 1 ] !=null ) _serializeObject.callBack = '[SWVMethod]'+arguments[ 0 ];
-							
-							if( arguments.length>2)
-							{
-								for (var i = 2; i < arguments.length; i++)
-								{
-									argumentsArray.push( arguments[ i ] );
-								}
-							}
-	
-							_serializeObject.arguments = argumentsArray;
-							if( _serializeObject.callBack !=undefined ) window.StageWebViewBridge.addCallback('[SWVMethod]'+arguments[ 0 ], arguments[ 1 ] );
-							window.location.href='about:[SWVData]'+btoa( JSON.stringify( _serializeObject ) );
-						};
-			
-						window.StageWebViewBridge.addCallback = function( name, fn )
-						{
-							window.StageWebViewBridge.callBacks[ name ] = fn;
-						};	
-			
-						window.alert = function(native)
-						{
-							window.nativeAlert = native; 
-							return function(str)
-							{
-								setTimeout('window.nativeAlert("'+str+'");',10);
-							};
-						}(window.alert);	
-					};
-				]]>
-			</script>;
-		private static const JSCODE:String = JSXML.toString().replace( new RegExp( "\\n", "g" ), "" ).replace( new RegExp( "\\t", "g" ), "" );		
-		
-		// Static Class Initializer
+		/**
+		 * @param xpos Indicates the initial x pos
+		 * @param ypos Indicates the initial y pos
+		 * @param w Indicates the initial width
+		 * @param h Indicates the initial height
+		 * 
+		 * @example
+		 *  var testBridge:StageWebViewBridge = new StageWebViewBridge( );
+		 * 
+		 */
+		public function StageWebViewBridge( xpos : uint = 0, ypos : uint = 0, w : uint = 400, h : uint = 400 )
 		{
-			setSourceFileExtensions( DEFAULT_CACHED_EXTENSIONS );
-			FIRST_RUN = File.applicationDirectory.resolvePath('StageWebViewFirstRun.cfg').exists ? false:true;
-		}		
-		
-		
-		public function StageWebViewBridge()
-		{
+			_viewPort = new Rectangle( 0, 0, w, h );
 			_view = new StageWebView();
-			_fileStream = new FileStream(); 
-			if( DEBUGMODE==true || FIRST_RUN ) processCache(); 
-			// this made the magic!! 
-			 
-			bridge = new StageWebViewBridgeExternal( this );             
-			_view.addEventListener(Event.COMPLETE,onListener );  
-			_view.addEventListener(ErrorEvent.ERROR,onListener );
-			_view.addEventListener(FocusEvent.FOCUS_IN,onListener );  
-			_view.addEventListener(FocusEvent.FOCUS_OUT,onListener );
-			_view.addEventListener(LocationChangeEvent.LOCATION_CHANGE,onListener );
-			_view.addEventListener(LocationChangeEvent.LOCATION_CHANGING, onListener );
+			_view.viewPort = _viewPort;
+
+			_bridge = new StageWebViewBridgeExternal( this );
+
+			// adds callback to get Root Ptah from JS
+			_bridge.addCallback( 'getRootPath', StageWebViewDisk.getRootPath );
+
+			_view.addEventListener( Event.COMPLETE, onListener );
+			_view.addEventListener( ErrorEvent.ERROR, onListener );
+			_view.addEventListener( FocusEvent.FOCUS_IN, onListener );
+			_view.addEventListener( FocusEvent.FOCUS_OUT, onListener );
+			_view.addEventListener( LocationChangeEvent.LOCATION_CHANGE, onListener );
+			_view.addEventListener( LocationChangeEvent.LOCATION_CHANGING, onListener );
+
+			x = xpos;
+			y = ypos;
+			setSize( w, h );
+			cacheAsBitmap = true;
+			cacheAsBitmapMatrix = transform.concatenatedMatrix;
+			addEventListener( Event.ADDED_TO_STAGE, onAdded );
 		}
 
 		/**
-		 * Sets the document 
-		 * @param htmlRoot
-		 * @param htmlCacheRoot
-		 * 
-		 */		
-		public static function setRootFolder( htmlRoot:String="html"):void
+		 * On added to stage, initialize "real" position with
+		 * localToGlobal and asign the new viewport
+		 */
+		private function onAdded( event : Event ) : void
 		{
-			DOCUMENT_ROOT = htmlRoot;
-			DOCUMENT_CACHE = DOCUMENT_ROOT+'Cache';
-			DOCUMENT_SOURCE = DOCUMENT_ROOT+'Source';
-		}	
-		
-		/**
-		 * Sets the file extensions that musy be preparsed into cache 
-		 * @param ext Array of extensions ex.:["html","htm","css","js"]
-		 * 
-		 */		
-		public static function setSourceFileExtensions( extensions:Array ):void 
-		{
-			CACHED_EXTENSIONS = extensions;
+			if ( visible ) _view.stage = stage;
+			_translatedPoint = localToGlobal( _zeroPoint );
+			_viewPort.x = _translatedPoint.x;
+			_viewPort.y = _translatedPoint.y;
+			viewPort = _viewPort;
 		}
-		
+
 		/**
-		 * Generic StageWebView Listener. Controls LOCATION_CHANGING events for catching special cases.
-		 */		
-		private function onListener( e:Event ):void
+		 * Generic StageWebView Listener. Controls LOCATION_CHANGING events for catching incomming data.
+		 */
+		private function onListener( e : Event ) : void
 		{
 			switch( true )
 			{
+				case e.type == Event.COMPLETE:
+					_bridge.initJavascriptCommunication();
+					dispatchEvent( e );
+					break;
 				case e.type == LocationChangeEvent.LOCATION_CHANGING:
-					var currLocation:String = unescape((e as LocationChangeEvent).location);
-					
+					var currLocation : String = unescape( (e as LocationChangeEvent).location );
 					switch( true )
 					{
-						
-						// special case when javascript calls come from the location
-						case currLocation.indexOf('about:[SWVData]')!=-1:
-							e.preventDefault();	
-							bridge.parseCallBack( currLocation.split('about:[SWVData]')[1] ); 
-							break;
-						// special case when a internal link come from the page
-						case currLocation.indexOf('applink:')!=-1:  
+						// javascript calls actionscript
+						case currLocation.indexOf( 'about:[SWVData]' ) != -1:
 							e.preventDefault();
-							loadLocalURL( currLocation ); 
-							break;	
-						default:
-							dispatchEvent( e );
-							break;	
-						
-					} 					
-					
-				break;
-				default:
-					dispatchEvent( e );	
-				break;	
-			}	
-
-		} 
-		/**
-		 * Processes the cache maintenance.
-		 * Update the cached files when the don't exist or has been updated.
-		 * Change DEBUGMODE to false for switch between DEBUG or PRODUCTION mode
-		 *  
-		 */		
-		public function processCache():void
-		{
-			var currentRootPath:String = DEBUGMODE ? DOCUMENT_ROOT:DOCUMENT_SOURCE;
-			var fileList:Vector.<File> = new Vector.<File>();
-			var cached_extensionsString:String = CACHED_EXTENSIONS.join(',');
-			var ext:String;
-			createCacheDir();
-			getFilesRecursive( fileList,'app:/'+currentRootPath); 
-
-			if( FIRST_RUN )
-			{ 
-				for(var e:uint = 0; e<fileList.length; e++)
-				{
-					ext = fileList[e].extension;
-					if( cached_extensionsString.indexOf( fileList[e].extension )!=-1 )
-					{
-						preparseFile( fileList[e] , ( ext == "html" || ext == "htm") );
-					}  
-				}
-				_tmpFile.nativePath = File.applicationDirectory.resolvePath('StageWebViewFirstRun.cfg').nativePath;
-				_fileStream.open(_tmpFile, FileMode.WRITE);
-				_fileStream.writeUTFBytes( 'firstRun=true' ); 
-				_fileStream.close();
-				FIRST_RUN = false;
- 			}	   
-			   
-
-			for ( var i:uint = 0; i<fileList.length; i++)
-			{
-				ext = fileList[i].extension;
-				if( cached_extensionsString.indexOf( ext )!=-1 )
-				{
-					preparseFile( fileList[i] , ( ext == "html" || ext == "htm") );
-				}
-				else
-				{
-						_copyFromFile.nativePath = fileList[i].nativePath;
-						_copyToFile.nativePath = File.applicationDirectory.resolvePath( DOCUMENT_CACHE+'/'+fileList[i].url.split('app:/'+DOCUMENT_ROOT+'/')[1] ).nativePath;
-						if( _copyToFile.exists )
-						{
-							if( _copyFromFile.modificationDate.getTime() > _copyToFile.modificationDate.getTime() )
-							{
-								_copyFromFile.copyTo(_copyToFile,true );
-							}	
-						}  
-						else
-						{
-							_copyFromFile.copyTo(_copyToFile,true );						
-						}
-				} 	
-			}
-
-		} 
-		
-		private function createCacheDir():void
-		{
-			var cacheDir:String = File.applicationDirectory.resolvePath( DOCUMENT_CACHE ).nativePath;
-			_tmpFile.nativePath = cacheDir;
-			_tmpFile.createDirectory();			
-		} 
-		 
-		private function preparseFile( file:File, ishtml:Boolean = false ):void
-		{ 
-
-			var currentRootPath:String = DEBUGMODE ? DOCUMENT_ROOT:DOCUMENT_SOURCE;
-			var update:Boolean = false;
-			
-			_copyFromFile.nativePath = file.nativePath;
-			_copyToFile.nativePath = File.applicationDirectory.resolvePath( DOCUMENT_CACHE+'/'+file.url.split('app:/'+currentRootPath+'/')[1] ).nativePath; 
-
-			if( !_copyToFile.exists )
-			{
-				update = true;
-			}
-			else
-			{	
-				// is file newer?
-				if ( _copyFromFile.modificationDate.getTime() > _copyToFile.modificationDate.getTime() || FIRST_RUN )
-				{
-					update=true;
-				}
-			} 
-			
-			// First time we must do the fileupdate to correct plattform paths
-			if( FIRST_RUN ) update = true;
-			
-			if( !update ){ return; }
-			
-			// get original file contents
-			_fileStream.open(_copyFromFile, FileMode.READ);
-			var originalFileContents:String = _fileStream.readUTFBytes(_fileStream.bytesAvailable);
-			_fileStream.close();
-			
-			// parse file contents to change path values
-			var fileContents:String = originalFileContents.split('appfile:').join( ROOT_PATH+'/'+DOCUMENT_CACHE );
-			if( ishtml )   
-			{
-				fileContents = fileContents.split('<head>').join( '<head><script type="text/javascript">'+JSCODE+'</script>' );
-			}	 
-			
-			// write file to the cache dir 
-			_fileStream.open(_copyToFile, FileMode.WRITE );
-			_fileStream.writeUTFBytes( fileContents ); 
-			_fileStream.close();
-			
-			// on Debug mode copy the original file to the release source dir
-			if( DEBUGMODE )
-			{	
-				_copyToFile.nativePath = File.applicationDirectory.resolvePath( DOCUMENT_SOURCE+'/'+file.url.split('app:/'+DOCUMENT_ROOT+'/')[1] ).nativePath; 
-				_fileStream.open(_copyToFile, FileMode.WRITE );
-				_fileStream.writeUTFBytes( originalFileContents ); 
-				_fileStream.close();
-			}
-			
-		}
-		
-		
-		
-		/**
-		 * Recursively get a directory structure 
-		 * @param fileList Destination vector file
-		 * @param path Current path to process
-		 * 
-		 */		 
-		private function getFilesRecursive( fileList:Vector.<File>, path:String="" ):void
-		{
-			var currentFolder:File = new File( path );
-			var files:Array = currentFolder.getDirectoryListing();
-			for (var f:uint = 0; f < files.length; f++)
-			{
-				if (files[f].isDirectory)
-				{
-					if (files[f].name !="." && files[f].name !="..")
-					{ 
-						//dir
-						getFilesRecursive(fileList, files[f].url);
+							_bridge.parseCallBack( currLocation.split( 'about:[SWVData]' )[1] );
+							break;
+						// load local pages
+						case currLocation.indexOf( 'applink:' ) != -1:
+							e.preventDefault();
+							loadLocalURL( currLocation );
+							break;
 					}
-				} 
-				else 
-				{ 
-					//file
-					fileList.push(files[f]);
-				}
-			}            
-		}	
-		
-		
+					break;
+				default:
+					dispatchEvent( e );
+					break;
+			}
+		}
+
+		/**
+		 * Overrides default addEventListener behavior to proxy LOCATION_CHANGING events through the original StageWebView
+		 * This lets us to prevent the LOCATION_CHANGING event 
+		 */
+		override public function addEventListener( type : String, listener : Function, useCapture : Boolean = false, priority : int = 0, useWeakReference : Boolean = false ) : void
+		{
+			switch( type )
+			{
+				case LocationChangeEvent.LOCATION_CHANGING:
+					_view.addEventListener( type, listener, useCapture, priority, useWeakReference );
+					break;
+				default:
+					super.addEventListener( type, listener, useCapture, priority, useWeakReference );
+					break;
+			}
+		}
+
+		/**
+		 * Overrides default removeEventListener behavior to proxy LOCATION_CHANGING events through the original StageWebView
+		 * This lets us to prevent the LOCATION_CHANGING event 
+		 */
+		override public function removeEventListener( type : String, listener : Function, useCapture : Boolean = false ) : void
+		{
+			switch( type )
+			{
+				case LocationChangeEvent.LOCATION_CHANGING:
+					_view.removeEventListener( type, listener, useCapture );
+					break;
+				default:
+					super.removeEventListener( type, listener, useCapture );
+					break;
+			}
+		}
+
+		/* PROXING SOME PROPIERTIES */
+		public function set viewPort( rectangle : Rectangle ) : void
+		{
+			_view.viewPort = rectangle;
+		}
+
+		public function get viewPort() : Rectangle
+		{
+			return _view.viewPort;
+		}
+
+		public function get isHistoryBackEnabled() : Boolean
+		{
+			return _view.isHistoryBackEnabled;
+		}
+
+		public function get isHistoryForwardEnabled() : Boolean
+		{
+			return _view.isHistoryForwardEnabled;
+		}
+
+		public function get location() : String
+		{
+			return _view.location;
+		}
+
+		public function get title() : String
+		{
+			return _view.title;
+		}
+
+		/* PROXING SOME METHODS */
+		public function assignFocus( direction : String = "none" ) : void
+		{
+			_view.assignFocus( direction );
+		}
+
+		public function dispose() : void
+		{
+			_view.removeEventListener( Event.COMPLETE, onListener );
+			_view.removeEventListener( ErrorEvent.ERROR, onListener );
+			_view.removeEventListener( FocusEvent.FOCUS_IN, onListener );
+			_view.removeEventListener( FocusEvent.FOCUS_OUT, onListener );
+			_view.removeEventListener( LocationChangeEvent.LOCATION_CHANGE, onListener );
+			_view.removeEventListener( LocationChangeEvent.LOCATION_CHANGING, onListener );
+			_view.dispose();
+			bitmapData.dispose();
+			_view = null;
+			_viewPort = null;
+			_tmpFile = null;
+			_bridge = null;
+			System.gc();
+		}
+
+		public function historyBack() : void
+		{
+			_view.historyBack();
+		}
+
+		public function historyForward() : void
+		{
+			_view.historyForward();
+		}
+
 		/**
 		 * Loads a local htmlFile into the webview.
 		 * 
@@ -378,103 +230,141 @@ package es.xperiments.media
 		 * @param url	The url file with applink:/ protocol
 		 * 				
 		 * 				Usage: stageWebViewBridge.loadLocalURL('applink:/index.html');
-		 */		
-		public function loadLocalURL( url:String ):void
+		 */
+		public function loadLocalURL( url : String ) : void
 		{
-			var fileName:String = url.split('applink:/')[1];
-			_tmpFile.nativePath = File.applicationDirectory.resolvePath( DOCUMENT_CACHE+'/'+fileName ).nativePath; 
-			 
- 			_view.loadURL( _tmpFile.url ); 
-			
-		}			 
-		
-		 
-		
-		// GETTERS SETTERS
-		
-		public function set stage( stg:Stage ):void
-		{
-			_view.stage = stg;
+			_tmpFile.nativePath = StageWebViewDisk.getFilePath( url.split( 'applink:/' )[1] );
+			_view.loadURL( _tmpFile.url );
 		}
-		public function get stage( ):Stage
-		{
-			return _view.stage; 
-		}	
-		public function set viewPort( rectangle:Rectangle ):void
-		{
-			_view.viewPort = rectangle;
-		}
-		public function get viewPort( ):Rectangle
-		{
-			return _view.viewPort;
-		}
-		public function get isHistoryBackEnabled( ):Boolean
-		{
-			return _view.isHistoryBackEnabled;
-		}		
-		public function get isHistoryForwardEnabled( ):Boolean
-		{
-			return _view.isHistoryForwardEnabled;
-		}
-		public function get location( ):String
-		{
-			return _view.location;
-		}		
-		public function get title( ):String
-		{
-			return _view.title;
-		}		
-		
-		/// METHODS
-		public function assignFocus(direction:String = "none"):void
-		{
-			_view.assignFocus( direction );
-		}	
-		public function dispose():void 
-		{
-			_view.removeEventListener(Event.COMPLETE,onListener );
-			_view.removeEventListener(ErrorEvent.ERROR,onListener );
-			_view.removeEventListener(FocusEvent.FOCUS_IN,onListener );
-			_view.removeEventListener(FocusEvent.FOCUS_OUT,onListener );
-			_view.removeEventListener(LocationChangeEvent.LOCATION_CHANGE,onListener );
-			_view.removeEventListener(LocationChangeEvent.LOCATION_CHANGING, onListener );			
-			_view.dispose();
-			bridge = null;
-		}
-		public function drawViewPortToBitmapData(bitmap:BitmapData):void
-		{
-			_view.drawViewPortToBitmapData( bitmap );
-		}	
-		public function historyBack():void
-		{
-			_view.historyBack( );
-		}
-		public function historyForward():void
-		{
-			_view.historyForward( ); 
-		}
-		
-		/**
-		 * Enhaced loadString
-		 * Loads a string and inject the javascript comunication code into it. 
-		 */		
-		public function loadString(text:String, mimeType:String = "text/html"):void
-		{
-			text=text.replace(new RegExp('appfile:','g'), ROOT_PATH );
-			text=text.replace(new RegExp('<head>','g'), '<head><script type="text/javascript">'+JSCODE+'</script>' );
-			_view.loadString( text, mimeType );
-		}
-		public function loadURL(url:String):void
+
+		public function loadURL( url : String ) : void
 		{
 			_view.loadURL( url );
 		}
-		public function reload():void
+
+		/**
+		 * Enhaced loadString
+		 * Loads a string and inject the javascript comunication code into it. 
+		 */
+		public function loadString( text : String, mimeType : String = "text/html" ) : void
 		{
-			_view.reload( );
+			text = text.replace( new RegExp( 'appfile:', 'g' ), StageWebViewDisk.applicationCacheDirectory );
+			text = text.replace( new RegExp( '<head>', 'g' ), '<head><script type="text/javascript">' + StageWebViewDisk.JSCODE + '</script>' );
+			_view.loadString( text, mimeType );
 		}
-		public function stop():void
+
+		/**
+		 * Creates and loads a temporally file with the provided contents.
+		 * This way we can access local files with the appfile:/ protocol
+		 * @params String content
+		 */
+		public function loadLocalString( content : String ) : void
 		{
-			_view.stop( );
-		}	
+			_view.loadURL( new File( StageWebViewDisk.createTempFile( content ).nativePath ).url );
+		}
+
+		public function reload() : void
+		{
+			_view.reload();
+		}
+
+		public function stop() : void
+		{
+			_view.stop();
+		}
+
+		/**
+		 * Sets the size of the StageWebView Instance
+		 * @param w The width in pixels of StageWebView
+		 * @param h The heigth in pixels of StageWebView
+		 */
+		public function setSize( w : uint, h : uint ) : void
+		{
+			_viewPort.width = w;
+			_viewPort.height = h;
+			viewPort = _viewPort;
+			generateSnapShotBitmap();
+		}
+
+		override public function get x() : Number
+		{
+			return super.x;
+		}
+
+		override public function set x( ax : Number ) : void
+		{
+			super.x = ax;
+			_viewPort.x = localToGlobal( _zeroPoint ).x;
+			viewPort = _viewPort;
+		}
+
+		override public function get y() : Number
+		{
+			return super.y;
+		}
+
+		override public function set y( ay : Number ) : void
+		{
+			super.y = ay;
+			_viewPort.y = localToGlobal( _zeroPoint ).y;
+			viewPort = _viewPort;
+		}
+
+		override public function get visible() : Boolean
+		{
+			return super.visible;
+		}
+
+		override public function set visible( value : Boolean ) : void
+		{
+			if ( stage )
+			{
+				super.visible = value;
+				_view.stage = value ? ( _snapShotVisible ? null : stage ) : null;
+			}
+		}
+
+		/**
+		 * draws a snapshot of StageWebView to the Bitmap
+		 */
+		public function getSnapShot() : void
+		{
+			_view.drawViewPortToBitmapData( bitmapData );
+			var bridge : StageWebViewBridge = this;
+			addEventListener( Event.ENTER_FRAME, function( e : Event ) : void
+			{
+				e.currentTarget.removeEventListener( e.type, arguments.callee );
+				bridge.dispatchEvent( new StageWebViewBridgeEvent( StageWebViewBridgeEvent.ON_GET_SNAPSHOT ) );
+			}, false, 0, true );
+		}
+
+		/**
+		 * Enables / Disables the visibility of the SnapShotBitmap
+		 * @param mode	Boolean.
+		 */
+		public function set snapShotVisible( mode : Boolean ) : void
+		{
+			_snapShotVisible = mode;
+			_view.stage = mode ? null : ( visible ? null : stage );
+			super.visible = mode;
+		}
+
+		/**
+		 * Generates a new BitmapData for the new dimensions
+		 */
+		private function generateSnapShotBitmap() : void
+		{
+			bitmapData = new BitmapData( _viewPort.width, _viewPort.height, false, 0x000000 );
+		}
+
+		public function call( functionName : String, callback : Function = null, ... arguments ) : void
+		{
+			_bridge.call.apply( null, [ functionName, callback ].concat( arguments ) );
+		}
+
+		public function addCallback( name : String, callback : Function ) : void
+		{
+			_bridge.addCallback( name, callback );
+		}
 	}
 }
