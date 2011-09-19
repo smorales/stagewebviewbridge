@@ -1,3 +1,31 @@
+= StageWebViewBridge extends Bitmap =
+
+As StageWebViewBridge extends bitmapdata, you can do:
+{{{
+// create StageWebViewBridge instance
+var view:StageWebViewBridge = new StageWebViewBridge( 0, 150, 320, 280 );
+
+// add it to the display list
+addChild( view );
+
+// move it
+view.x = 100;
+view.y = 100;
+
+// get a SnapShot for use as the Bitmap's bitmapdata
+view.getSnapShot();
+
+// toggle the visibility of the SnapShot  
+view.snapShotVisible = true;
+
+// rotate, scale, change alpha ( only when snapShotVisible = true )
+view.alpha = .5;
+view.rotation = 45;
+view.scaleX = .5;
+}}}
+
+----
+
 = StageWebViewDisk initialization =
 
 StageWebViewDisk is the responsable of all disk transactions with StageWebViewBridge.
