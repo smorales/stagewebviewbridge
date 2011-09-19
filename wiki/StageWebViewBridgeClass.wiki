@@ -1,0 +1,17 @@
+= StageWebViewBridge Class =
+
+== Propierties ==
+{{{
+/**
+ * Enables / Disables the visibility of the SnapShotBitmap
+ * @param mode	Boolean.
+ */
+public function set snapShotVisible( mode : Boolean ) : void
+
+
+}}}
+
+
+
+
+public function StageWebViewBridge( xpos : uint = 0, ypos : uint = 0, w : uint = 400, h : uint = 400 )
