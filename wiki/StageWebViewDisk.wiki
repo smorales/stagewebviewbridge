@@ -1,0 +1,7 @@
+initialize
+
+public static function setDebugMode( mode : Boolean = true ) : void
+
+public static function setExtensionsToProcess( extensions : Array ) : void
+
+public static function createTempFile( contents : String, extension : String = "html" ) : File
