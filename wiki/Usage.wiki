@@ -41,9 +41,30 @@ StageWebViewDisk.initialize();
 // new StageWebViewBridge( x,y,width,height )
 var view:StageWebViewBridge = new StageWebViewBridge( 0, 150, 320, 280 );
 
+// add listener for when page becomes loaded
+view.addEventListener( Event.COMPLETE, onViewLoadComplete );
+
+// enable javascript to call function helloWorldFromJS
+view.addCallBack('helloWorldFromJS', helloWorldFromJS );
+
+// load content to the view
+view.loadLocalURL('appfile:/index.html');
+
 // as StageWebViewBridge extends Bitmap
 // we can now add it to the displaylist
 addChild( view );
 
-_view.addEventListener(LocationChangeEvent.LOCATION_CHANGING,onURLChange );
+
+// event listener that gets called on page load complete
+function onViewLoadComplete( e:Event ):void
+{
+	trace('view loaded');
+}
+
+// event listener that gets called on page load complete
+function helloWorldFromJS( ):void
+{
+	trace('helloWorldFromJS called from JavaScript');
+}
+
 }}}
