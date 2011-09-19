@@ -1,4 +1,4 @@
-=Cache FileSystem=
+=Cache FileSystem ( Updated 1.0 Beta ) =
 
 Working with localfiles is tedious. You must provide paths with a native path.
 
@@ -9,47 +9,53 @@ To overcome this situation we have provide StageWebViewBridge with new ways of r
 
 But, what happends begin the scenes?
 
-By default StageWebViewBridge will assume that the "root" dir of your web files is the "html" directory inside your File.applicationDirectory.
-
-Based on this "html" folder name, 2 new directories will be created:
-{{{
-app:/html
-app:/htmlCache	[ new ]
-app:/htmlSource	[ new ]
-}}}
+By default StageWebViewBridge will assume that the "root" dir of your web files is the "www" directory inside your File.applicationDirectory.
 
 === Explanation of directories ==
 {{{
-app:/html...............This is your working directory.
+app:/www................This is your working directory.
 			Put inside it all your html project files.
 			Make only changes in files of this directory.!!! 
 
-app:/htmlCache..........Parsed versions of [html,htm,js,css] files.
-			Contains a copy of all other files. [png,jpg,mp4,etc...]
+app:/wwwSource..........Contains parsed sources and files.
 
-app:/htmlSource.........Contains original unparsed sources.
-			For use as original files in app release.
-			When you first install the application, it will parse
-			these files and save them to app:/htmlCache
 }}}
 
 
 === How Cache system works ===
 
-Every time you compile your projects, StageWebViewBridge do:
+Every time you compile your projects, depending of the debug and plattform StageWebViewBridge will do:
 
-*StageWebViewBridge.DEBUGMODE = true*
+*StageWebViewDisk.setDebugMode( true )*
 
- * Assumes that root dir is default dir *app:/html*
- * Search for new or modified files in app:/html.
- * For every new or updated file make a parsed/copy into app:/htmlCache.
- * If the file is [ html,html,js,css] it will also copy the file to the app:/htmlSource.
+ ==== DESKTOP ====
+{{{
+wwwSource dir will be generated in the applicationDirectory dir and used as the www root folder
+}}}
+ ==== iOS ====
+{{{
+ www dir will be used as the www root folder
+}}}
+ ==== ANDROID ====
+{{{
+ wwwSource dir will be generated in the applicationStorageDirectory dir and used as the www root folder
+}}}
+ 
+*StageWebViewDisk.setDebugMode( false )*
 
-*StageWebViewBridge.DEBUGMODE = false*
-
- * Assumes that root dir is *app:/htmlSource*
- * Use it when you are in release build.
-
+ ==== DESKTOP ====
+{{{
+ www dir will be used as the www root folder
+*ATENTION*
+}}}
+ ==== iOS ====
+{{{
+ www dir will be used as the www root folder
+}}} 
+ ==== ANDROID ====
+{{{
+ wwwSource dir will be generated in the applicationStorageDirectory dir and used as the www root folder
+}}}
 
 === App First Run ===
 
