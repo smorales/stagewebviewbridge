@@ -30,3 +30,20 @@ StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDisk
 StageWebViewDisk.initialize();	
 
 }}}
+
+----
+= Creating a new StageWebViewBridge instance =
+
+
+
+{{{
+// create StageWebViewBridge instance
+// new StageWebViewBridge( x,y,width,height )
+var view:StageWebViewBridge = new StageWebViewBridge( 0, 150, 320, 280 );
+
+// as StageWebViewBridge extends Bitmap
+// we can now add it to the displaylist
+addChild( view );
+
+_view.addEventListener(LocationChangeEvent.LOCATION_CHANGING,onURLChange );
+}}}
