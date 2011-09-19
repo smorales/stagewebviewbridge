@@ -82,8 +82,7 @@ public function addCallback( name : String, callback : Function ) : void
 
 == Events ( StageWebViewBridgeEvent ) == 
 {{{
+// dispatched on stagewebview image capture get generated
 public static const ON_GET_SNAPSHOT : String = "ON_GET_SNAPSHOT";
 }}}
-
-
 
