@@ -35,7 +35,7 @@ StageWebViewDisk.initialize();
 = Creating a new StageWebViewBridge instance =
 
 
-
+*AS3 Code*
 {{{
 // create StageWebViewBridge instance
 // new StageWebViewBridge( x,y,width,height )
@@ -59,12 +59,38 @@ addChild( view );
 function onViewLoadComplete( e:Event ):void
 {
 	trace('view loaded');
+	// call a javascript function after the page loads
+	// that will do an alert with the date passed from as3
+	view.call('helloWorldFromAS3', null, new Date().toString() );
 }
 
 // event listener that gets called on page load complete
-function helloWorldFromJS( ):void
+function helloWorldFromJS( at:String ):void
 {
-	trace('helloWorldFromJS called from JavaScript');
+	trace('helloWorldFromJS called from JavaScript at '+ at );
 }
+
+}}}
+
+*index.html*
+
+{{{
+<html>
+<head></head>
+<body style="margin:0px; padding:0px">  
+<script>
+	function helloWorldFromAS3( at )
+	{
+		alert('helloWorldFromAS3 called from AS3 at '+ at ); 
+	}
+</script>
+<button onclick="StageWebViewBridge.call('helloWorldFromJS',null,new Date().toString() )">Call Actionscript helloWorldFromJS function</button>   
+ 
+</body>
+</html>   
+
+
+
+
 
 }}}
