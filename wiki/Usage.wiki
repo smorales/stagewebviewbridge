@@ -88,9 +88,25 @@ function helloWorldFromJS( at:String ):void
  
 </body>
 </html>   
+}}}
 
 
+= Working with SnapShots =
 
+You can get an SnapShot of the view by calling the *getSnapShot* method.
 
+GetSnapShot method works asynchronously, you can listen for the StageWebViewBridgeEvent.ON_GET_SNAPSHOT event to know when the bitmapdata is generated
+
+{{{
+view.addEventListener( StageWebViewBridgeEvent.ON_GET_SNAPSHOT, onGetSnapShot );
+view.getSnapShot();
+
+function onGetSnapShot( e:StageWebViewBridgeEvent ):void
+{
+	// remove listener
+	view.removeEventListener( StageWebViewBridgeEvent.ON_GET_SNAPSHOT, onGetSnapShot );
+	// set the bitmapdata visible, hides de stagewebview
+	view.snapShotVisible = true;
+}
 
 }}}
