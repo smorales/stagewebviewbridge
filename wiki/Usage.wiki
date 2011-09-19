@@ -64,7 +64,7 @@ function onViewLoadComplete( e:Event ):void
 	view.call('helloWorldFromAS3', null, new Date().toString() );
 }
 
-// event listener that gets called on page load complete
+// function to be called from JS
 function helloWorldFromJS( at:String ):void
 {
 	trace('helloWorldFromJS called from JavaScript at '+ at );
