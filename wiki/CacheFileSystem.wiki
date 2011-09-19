@@ -4,12 +4,14 @@ Working with localfiles is tedious. You must provide paths with a native path.
 
 To overcome this situation we have provide StageWebViewBridge with new ways of referencing resources as we have explained in [ContentLoading]
 
+= How Cache system works =
+
 
 == Begin the scenes ==
 
 But, what happends begin the scenes?
 
-By default StageWebViewBridge will assume that the "root" dir of your web files is the "www" directory inside your File.applicationDirectory.
+StageWebViewBridge will assume that the "root" dir of your web files is the "www" directory inside your File.applicationDirectory.
 
 === Explanation of directories ==
 {{{
@@ -21,10 +23,9 @@ app:/wwwSource..........Contains parsed sources and files.
 
 }}}
 
+== Debug Mode ON/OFF==
 
-=== How Cache system works ===
-
-Every time you compile your projects, depending of the debug and plattform StageWebViewBridge will do:
+Every time you compile your projects, depending of the debug and current plattform StageWebViewBridge will do:
 
 *StageWebViewDisk.setDebugMode( true )*
 
@@ -44,10 +45,11 @@ wwwSource dir will be generated in the applicationDirectory dir and used as the 
 *StageWebViewDisk.setDebugMode( false )*
 
  ==== DESKTOP ====
+ <font color="#FF0000">ATTENTION *BE SURE TO BACKUP YOUR WWW DIR BEFORE DO THIS, AS THE FILES WILL BE OVERWRITTEN*</font> 
 {{{
  www dir will be used as the www root folder
-*ATENTION*
 }}}
+
  ==== iOS ====
 {{{
  www dir will be used as the www root folder
@@ -57,29 +59,20 @@ wwwSource dir will be generated in the applicationDirectory dir and used as the 
  wwwSource dir will be generated in the applicationStorageDirectory dir and used as the www root folder
 }}}
 
-=== App First Run ===
-
-When the app finish launching, it test if it's the first time that its run.
-
-If so, it will preparse all the files of app:/htmlSource to app:/htmlCache.
 
 == Public Methods ==
-
-=== StageWebViewBridge.setRootFolder ===
 {{{
-// sets the default dir to 'htmlFiles'
-StageWebViewBridge.setRootFolder('htmlFiles');
-
-// this will create 2 new dirs
-app:/htmlFilesCache
-app:/htmlFilesSource
+/**
+ * Enables / Disables DEBUG MODE
+ */
+public static function setDebugMode( mode : Boolean = true ) : void
 }}}
 
-=== StageWebViewBridge.setSourceFileExtensions ===
 {{{
-// Change the extensions of the files to parse.
-// Default extensions are ["html","htm","css","js"]
-
-// now limit the files to be html or js, and left intact the css and htm files
-StageWebViewBridge.setSourceFileExtensions(['html','js']);
+/**
+ * Sets the file extensions that must be preparsed into cache 
+ * @param extensions Array of extensions ex.:["html","htm","css","js"]
+ * 
+ */
+public static function setExtensionsToProcess( extensions : Array ) : void
 }}}
