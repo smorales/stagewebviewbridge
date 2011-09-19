@@ -1,5 +1,7 @@
 = Content Loading =
 
+*Before continue be sure to read how CacheFileSystem works*
+
 == Introduction ==
 To accomplish with the loading of different resources we introduce 3 new protocols.
 {{{
@@ -81,4 +83,3 @@ You must provide a valid html code because the injection finds the <head> tag to
 var html:String = '<html><head><head><body><img src="appfile:/image.jpg"></body></html>';
 webView.loadLocalString( html );
 }}}
-
