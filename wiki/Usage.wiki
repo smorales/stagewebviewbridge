@@ -1,5 +1,7 @@
 = StageWebViewBridge extends Bitmap =
 
+* Be sure to understand how cache filedisk works *
+
 As StageWebViewBridge extends bitmapdata, you can do:
 {{{
 // create StageWebViewBridge instance
