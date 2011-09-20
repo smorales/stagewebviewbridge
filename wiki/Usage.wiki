@@ -1,7 +1,44 @@
+*Before continue be sure to read how CacheFileSystem works *
+
+= StageWebViewDisk initialization =
+
+StageWebViewDisk is the responsable of all disk transactions with StageWebViewBridge.
+
+It is required to initialize the StageWebViewDisk class before we can use a StageWebViewBridge instance.
+
+There are 2 events that gets dispatched from this class.We can use it to show some fake loading progress when the disk parsing starts/stops.
+
+*Events*
+{{{
+// Dispatched at disk parsing start
+StageWebviewDiskEvent.START_DISK_PARSING;
+// Dispatched at disk parsing end
+StageWebviewDiskEvent.END_DISK_PARSING; 
+}}}
+
+*Example initialization code*
+
+{{{
+
+// OPTIONAL BEFORE INIT OPTIONS SETTING
+StageWebViewDisk.setDebugMode( true ); // if we need debug mode assign it before initializaton
+
+// StageWebViewDisk Events. First time app launches it proceses the filesystem
+// As it can take some time, depending of the filesize of the included files
+// we provide 2 events to know when process start/finish
+			
+StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDiskCacheStart);
+StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
+StageWebViewDisk.initialize( stage /*Stage instance. Required*/ );	
+
+}}}
+
+
+----
 = StageWebViewBridge extends Bitmap =
 
 
-*Before continue be sure to read how CacheFileSystem works *
+
 
 
 As StageWebViewBridge extends bitmapdata, you can do:
@@ -46,40 +83,6 @@ view.scaleX = .5;
 
 ----
 
-= StageWebViewDisk initialization =
-
-StageWebViewDisk is the responsable of all disk transactions with StageWebViewBridge.
-
-It is required to initialize the StageWebViewDisk class before we can use a StageWebViewBridge instance.
-
-There are 2 events that gets dispatched from this class.We can use it to show some fake loading progress when the disk parsing starts/stops.
-
-*Events*
-{{{
-// Dispatched at disk parsing start
-StageWebviewDiskEvent.START_DISK_PARSING;
-// Dispatched at disk parsing end
-StageWebviewDiskEvent.END_DISK_PARSING; 
-}}}
-
-*Example initialization code*
-
-{{{
-
-// OPTIONAL BEFORE INIT OPTIONS SETTING
-StageWebViewDisk.setDebugMode( true ); // if we need debug mode assign it before initializaton
-
-// StageWebViewDisk Events. First time app launches it proceses the filesystem
-// As it can take some time, depending of the filesize of the included files
-// we provide 2 events to know when process start/finish
-			
-StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDiskCacheStart);
-StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
-StageWebViewDisk.initialize();	
-
-}}}
-
-----
 = Creating a new StageWebViewBridge instance =
 
 
