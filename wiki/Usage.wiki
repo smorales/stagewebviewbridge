@@ -6,6 +6,19 @@
 
 As StageWebViewBridge extends bitmapdata, you can do:
 {{{
+
+/**
+* StageWebViewBridge Class
+ * @param xpos Indicates the initial x pos
+ * @param ypos Indicates the initial y pos
+ * @param w Indicates the initial width
+ * @param h Indicates the initial height
+ * @param autoVisibleUpdate Boolean. Control visibility testing of his parents. TRUE by Default. Disable it to save some CPU ( as it uses an EXIT_FRAME event listener to work ),then control yourself his visibility. 
+ * @example
+ *  var testBridge:StageWebViewBridge = new StageWebViewBridge( );
+ * 
+ */
+
 // create StageWebViewBridge instance
 var view:StageWebViewBridge = new StageWebViewBridge( 0, 150, 320, 280 );
 
