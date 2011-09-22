@@ -22,7 +22,11 @@ jsfile:/ --> used in JS to get a file path with StageWebViewBridge.getFilePath('
 }}}
 
 ----
+= Loading content from Online =
 
+<font color="#FF0000">To load content from online resources we use the standard webView.loadURL( url ) method, *but if we LIKE COMM TO GET WORKING, we MUST include the StageWebViewBridge.js inside the online file*.</font>
+
+----
 = Different load methods =
 
 ==.loadURL( url:String ) ==
