@@ -33,7 +33,10 @@ StageWebViewDisk.initialize( stage /*Stage instance. Required*/ );
 
 }}}
 
-
+*TIP*
+{{{
+If we are targeting only Mobile we can less the debug mode true all the time, as it din't affect on Mobile
+}}}
 ----
 = StageWebViewBridge extends Bitmap =
 
