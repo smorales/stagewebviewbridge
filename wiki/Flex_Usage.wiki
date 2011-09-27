@@ -16,7 +16,7 @@ package es.xperiments.media
 	{
 		public function SWVBUIComponent()
 		{
-			super()
+			super();
 			focusEnabled = false;
 		}
 	}
