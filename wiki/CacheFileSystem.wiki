@@ -61,6 +61,8 @@ wwwSource dir will be generated in the applicationDirectory dir and used as the 
 
 
 == Public Methods ==
+
+*.setDebugMode*
 {{{
 /**
  * Enables / Disables DEBUG MODE
@@ -68,6 +70,7 @@ wwwSource dir will be generated in the applicationDirectory dir and used as the 
 public static function setDebugMode( mode : Boolean = true ) : void
 }}}
 
+*.setExtensionsToProcess*
 {{{
 /**
  * Sets the file extensions that must be preparsed into cache 
@@ -75,4 +78,15 @@ public static function setDebugMode( mode : Boolean = true ) : void
  * 
  */
 public static function setExtensionsToProcess( extensions : Array ) : void
+}}}
+
+*.createFile*
+{{{
+/**
+ * Creates and parses a new file with the provided contents.
+ * @param fileName the full filename in this format: "appfile:/exampledir/examplefile.html"
+ * @param contents Contents of the file.
+ * @param isHtml Boolean indicatin if file is an htmlFile ( used to inject js code in the html files );
+ */
+public static function createFile( fileName : String, contents : String, isHtml : Boolean = true ) : File
 }}}
