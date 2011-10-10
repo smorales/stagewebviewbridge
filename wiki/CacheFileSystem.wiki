@@ -90,3 +90,31 @@ public static function setExtensionsToProcess( extensions : Array ) : void
  */
 public static function createFile( fileName : String, contents : String, isHtml : Boolean = true ) : File
 }}}
+
+*.getFilePath*
+{{{
+/**
+ * Returns the native path for the fileName
+ * @param fileName Name of the file
+ */
+public static function getFilePath( url : String ) : String
+}}}}
+
+*.getRootPath*
+{{{{
+/**
+ * Returns the Main path to the www root filesystem
+ */
+public static function getRootPath() : String
+}}}
+
+*.getSourceRootPath*
+{{{
+/**
+ * Return the path of the cached files dir ( DESKTOP/ANDROID == getRootPath | iOS = "app:/www" as this uses less cache files )
+ */
+public static function getSourceRootPath() : String
+{
+	return _applicationSourcesDirectory;
+}
+}}}
