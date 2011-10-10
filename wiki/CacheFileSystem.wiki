@@ -98,10 +98,10 @@ public static function createFile( fileName : String, contents : String, isHtml 
  * @param fileName Name of the file
  */
 public static function getFilePath( url : String ) : String
-}}}}
+}}}
 
 *.getRootPath*
-{{{{
+{{{
 /**
  * Returns the Main path to the www root filesystem
  */
