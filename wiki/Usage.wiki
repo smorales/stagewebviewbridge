@@ -99,7 +99,7 @@ var view:StageWebViewBridge = new StageWebViewBridge( 0, 150, 320, 280 );
 view.addEventListener( Event.COMPLETE, onViewLoadComplete );
 
 // enable javascript to call function helloWorldFromJS
-view.addCallBack('helloWorldFromJS', helloWorldFromJS );
+view.addCallback('helloWorldFromJS', helloWorldFromJS );
 
 // load content to the view
 view.loadLocalURL('appfile:/index.html');
