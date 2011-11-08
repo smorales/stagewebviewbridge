@@ -31,6 +31,15 @@ StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDi
 StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
 StageWebViewDisk.initialize( stage /*Stage instance. Required*/ );	
 
+var bridge:StageWebViewBridge;
+
+function onDiskCacheStart( e:StageWebviewDiskEvent ):void{ /* Do something at process start */ }
+function onDiskCacheEnd( e:StageWebviewDiskEvent ):void
+{
+    //Now is safe to init our StageWebViewBridge class
+    bridge = new StageWebViewBridge( 0, 150, 320, 280 );
+    .... 
+}
 }}}
 
 *TIP*
