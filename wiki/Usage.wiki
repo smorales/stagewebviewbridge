@@ -6,7 +6,10 @@ StageWebViewDisk is the responsable of all disk transactions with StageWebViewBr
 
 *It is required to initialize the StageWebViewDisk class before we can use a StageWebViewBridge instance.*
 
-There are 2 events that gets dispatched from this class.We can use it to show some fake loading progress when the disk parsing starts/stops.
+There are 2 events that gets dispatched from this class.
+
+*We must listen to the StageWebviewDiskEvent.END_DISK_PARSING before create any StageWebViewBridge instance*
+
 
 *Events*
 {{{
