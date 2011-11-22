@@ -7,4 +7,4 @@ You can download the lattest swc [http://code.google.com/p/stagewebviewbridge/so
 *EXAMPLE CODE*
 
 You can download the examples 
-[http://code.google.com/p/stagewebviewbridge/source/browse/#svn%2Ftrunk%2FStageWebViewBridge%2Fdownload here]
+[http://stagewebviewbridge.googlecode.com/svn/trunk/StageWebViewBridge/download/@swvb_examples.zip here]
